@@ -76,7 +76,7 @@ function main() {
     console.log("config folder does not exist")
     fs.mkdirSync(path.join(homeDir, 'SpeakAppConfig'))
   }
-  if (!fs.existsSync(path.join(homeDir, 'SpeakAppConfig'))){
+  if (!fs.existsSync(path.join(homeDir, 'SpeakAppConfig/config.json'))){
     fs.writeFileSync(path.join(homeDir, 'SpeakAppConfig/config.json'), JSON.stringify({"server_ip" : HOST, "server_port" : HOST_PORT}))
   }
   else {
