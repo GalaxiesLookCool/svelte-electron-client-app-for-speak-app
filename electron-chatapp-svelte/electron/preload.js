@@ -32,7 +32,9 @@ contextBridge.exposeInMainWorld('api', {
 
     sendFilePath: (path) => {return ipcRenderer.invoke('sendFilePath', path)},
 
-    downLoadFileName: (name) => {return ipcRenderer.invoke('downLoadFileName', name)}
+    downLoadFileName: (name) => {return ipcRenderer.invoke('downLoadFileName', name)},
+
+    spamMsg: (msg_dict, amount) => {return ipcRenderer.invoke('spamMsg', msg_dict, amount)}
 
     // Send Methods
 

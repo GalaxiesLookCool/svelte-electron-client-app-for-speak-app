@@ -4,11 +4,9 @@
   import { lazyLoad } from "./lazyLoad.js";
   import { users, download_file, download_image, edit_msg } from "./store.js";
   import { scale, slide, fade, blur, fly } from 'svelte/transition'
-  import { flip } from 'svelte/animate'
   import { onMount } from "svelte";
   import {clickOutside} from './clickOutside.js';
   //import WaveSurfer from 'https://unpkg.com/wavesurfer.js@7/dist/wavesurfer.esm.js'
-  console.log(WaveSurfer);
   export let textContent;
   export let msgSender;
   export let timeSent;
@@ -26,16 +24,16 @@
   let hovered = false;
   let editing = false;
   let textareaediting = null;
-  //$: console.log(timeSent)
-  //$: console.log(typeof attachments)
+  let audioLengths = {};
   import { id, delete_msg } from "./store.js";
   $: directionClass = msgSender.id == get(id) ? "flex-row-reverse" : "flex-row";
   $: justifyClass = msgSender.id == get(id) ? "justify-end" : "justify-start";
   $: colorClass = msgSender.id == get(id) ? "bg-blue-300" : "bg-purple-300";
   $: tryDisplayWaveform(attachments);
-  //$: console.log(attachments)
-  //$: console.log(msgSender)
   async function tryDisplayWaveform(attachments) {
+    /*
+    function that recieves the attachments  list, and if there is a voice recording attachments, displays it
+    */
     if (!attached) return;
     attachments.forEach((attach, index) => {
       if (attach.type == "audiorecording") {
@@ -43,7 +41,6 @@
           document.getElementById("msg" + msgid + "_recording").innerHTML != ""
         )
           return;
-        console.log("trying to display waveform");
         const wavesurfer = WaveSurfer.create({
           container: "#msg" + msgid + "_recording",
           waveColor: "#4F4A85",
@@ -60,24 +57,28 @@
         wavesurfer.on("interaction", () => {
           changeaudio(wavesurfer);
           wavesurfer.play();
-          console.log("should play");
         });
         waveDicts[index] = wavesurfer;
+        audioLengths[index] = 0
+        wavesurfer.on("ready", (dur)=>{
+          audioLengths[index] = dur
+        })
       }
     });
   }
 
   onMount(async () => {
     var loc = window.location.pathname;
-    console.log(loc);
     attached = true;
     tryDisplayWaveform(attachments);
   });
   function textAreaAdjust() {
+    /*
+    function that readjusts the text field to the number of lines
+    */
     let element = textareaediting
     element.style.height = "1px";
     element.style.height = (25+element.scrollHeight)+"px";
-    console.log(textareaediting)
   }
 </script>
 
@@ -107,11 +108,11 @@
     </div>
 
     <div
-      class="relative ml-3 mr-3 rounded-xl {colorClass} px-4 py-2 text-sm shadow"
+      class="relative ml-3 mr-3 rounded-xl {colorClass} px-4 py-2 text-sm shadow w-96 break-words"
     >
       {#if msg_type=="deleted"}
         <div class="flex items-center space-x-2 rtl:space-x-reverse">
-          <span class="text-sm font-semibold text-gray-900 dark:text-white"
+          <span class="w-36 truncate ... text-sm font-semibold text-gray-900 dark:text-white"
             >{msgSender.Name}</span
           >
           <span class="text-sm font-normal text-gray-500 dark:text-gray-400"
@@ -146,7 +147,7 @@
         </DropdownMenu.Root>
         {/if}
         <div class="flex items-center space-x-2 rtl:space-x-reverse">
-          <span class="text-sm font-semibold text-gray-900 dark:text-white"
+          <span class="w-36 truncate ... text-sm font-semibold text-gray-900 dark:text-white"
             >{msgSender.Name}</span
           >
           <span class="text-sm font-normal text-gray-500 dark:text-gray-400"
@@ -219,6 +220,9 @@
                 class="flex h-20 w-60 bg-gray-200 border-2 border-gray-700 px-4 align-middle flex items-center justify-center"
                 style="border-radius: 200px;"
               ></div>
+              <div class="mx-2 text-lg">
+                {Math.floor(audioLengths[i] / 60)} : {Math.floor(audioLengths[i] % 60)}
+              </div>
               <button
                 class="h-8 w-8 rounded-full p-1 flex border-2 border-black bg-white mx-2"
                 on:click={() => {

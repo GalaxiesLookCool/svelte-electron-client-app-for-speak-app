@@ -7,7 +7,6 @@
     let clearMsgsForm;
     let scrollToBott;
 
-    //$: console.log($groups)
 
     window.api.serverUpdate(server_update)
 
@@ -15,15 +14,16 @@
     fetch_groups()
 
     const changeChat = (newChatID) => {
+        /*
+        function that does everything needed when changing the selected chat - colors it blue, clears out all old messages, and fetches the messages
+        */
         activeGroup = newChatID
         clearMsgsForm()
         clear_msgs()
         var tempGroups = get(groups)
         current_group.set(newChatID)
-        console.log(`should change to ${newChatID}`)
         for (var i = 0; i < get(groups).length; i++){
             if (tempGroups[i]["id"] == newChatID){
-                console.log(`found group - ${get(groups)[i]["name"]}`)
                 tempGroups[i]["selected"] = true 
                 fetch_msgs(newChatID).then((resp) => {
                     if (resp.status == "error"){
@@ -34,21 +34,6 @@
                         scrollToBott()
                     }
                 })
-                /*
-                window.api.promiseMsg(JSON.stringify({"type" : "FETCHMSGSFROMCLIENT", "token" : $token, "CHATID" : newChatID, "AMOUNT" : "20", "LATEST" : "0"})).then((resp) => {
-                    resp = JSON.parse(resp)
-                    if (resp["success"] == "0"){
-                        alert("failure to load msgs")
-                        return
-                    }
-                    if (activeGroup == resp["CHATID"]){
-                        msgs.set(resp["msgs"]) //add the messages of this chat into our store
-                        sortMsgs()
-                        scrollToBott()
-                    } 
-                        
-                })
-                */
             }
             else {
                 tempGroups[i]["selected"] = false
@@ -59,12 +44,17 @@
     }
 
     function newGroup(_,data) {
-        console.log("in new group func")
+        /*
+        function that executes whenever there is a new group. NOT USED!!
+        */
         groups.set([...get(groups), {"name" : data["CHATNAME"], "id" : data["CHATID"], "membersDict" : data["memberstatus"], "picture" : data["picture"], "selected" : false, "unread" : 0}])
         sortGroups()
     }
 
     function sendMessage(textContent, messageAttachmentsArray){
+        /*
+        function that recieves the text content and attachments array, sends the message, clears the text form, and handles the response
+        */
         if (textContent.length == 0 && messageAttachmentsArray.length == 0){
             return;
         }
@@ -86,7 +76,9 @@
     }
 
     function newMsg(_, data) {
-        console.log(data)
+        /*
+        UNUSED
+        */
         if (activeGroup == data["CHATID"]){
             var tempMsgDict = {"textcontent" : data["textcontent"] , "msgid" : data["msgid"], "CHATID" : data["CHATID"], "senderid" : data["senderid"], "usersReadStatus" : data["usersReadStatus"], "timeSent" : data["timeSent"], "attachments" : data["attachments"], "msgtype" : data["msgtype"]}
             msgs.set([...get(msgs), tempMsgDict])

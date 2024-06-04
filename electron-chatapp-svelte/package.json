@@ -39,14 +39,13 @@
     "node-file-dialog": "^1.0.3",
     "node-notifier": "^10.0.1",
     "sirv-cli": "^2.0.0",
+    "vaul-svelte": "^0.3.1",
     "wavesurfer.js": "^7.6.4"
   },
-  "build":
-  {
+  "build": {
     "nsis": {
       "oneClick": false,
       "perMachine": false
     }
   }
-
 }

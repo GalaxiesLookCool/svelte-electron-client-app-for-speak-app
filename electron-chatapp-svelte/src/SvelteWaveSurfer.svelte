@@ -7,7 +7,6 @@
     $: tryLoadSrc(audioSrc)
 
     function tryLoadSrc(audiosrc){
-        console.log("audio src changed")
         if (!wavesurfer || !audioSrc)
             return
         wavesurfer.load(audioSrc)//.then(()=>{

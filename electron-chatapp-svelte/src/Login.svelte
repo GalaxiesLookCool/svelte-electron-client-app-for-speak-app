@@ -19,8 +19,13 @@
     let isloading = false;
 
     function tryShowImage(event){
+      /*
+      function that recieves an onchange event of the file element, and tries to display the image
+      */
       var file = event.target.files[0]
-      console.log(file)
+      if (!file){
+        return
+      }
       if (["png" , "jpeg", "jpg"].includes(getExtension(file))){
         const reader = new FileReader()
         reader.readAsDataURL(file)
@@ -42,44 +47,41 @@
     }
 
     function getExtension(file) {
-      console.log(file)
+      /*
+      function that recieves a file object and returns its extension in lower characters
+      */
         var filename = file.name
         if (filename){
             var parts = filename.split('.');
-            return parts[parts.length - 1];
+            return parts[parts.length - 1].toLowerCase();
         }
         return ""
         
     }
     const tryReg = function(){
+      /*
+      function that tries to login (checks all the fields and sends the requests and handles it response)
+      */
         isloading = true
-        console.log("this ran")
-        console.log(`name - ${name} password - ${password}`)
         var emailRegex = new RegExp("[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}")
         if (emailRegex.test(email) == false){
-          console.log("email invalid")
-            errorBox.classList.remove('hidden')
-            console.log(errorBox)
-            console.log(errorBox.style.display)
-            
+            errorBox.classList.remove('hidden')            
             errorMsg.innerHTML = "email is invalid!"
+            isloading = false
             return
         }
         var unameRegex = new RegExp("^[a-zA-Z]+")
         if (unameRegex.test(name) == false){
-            console.log("uname invalid")
-            errorBox.classList.remove('hidden')
-            console.log(errorBox)
-            console.log(errorBox.style.display)
-            
+            errorBox.classList.remove('hidden')            
             errorMsg.innerHTML = "Username Must be at least 1 char, and only contain english letters"
+            isloading = false
             return
         }
         var passwordRegex = new RegExp("^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$")
         if (passwordRegex.test(password) == false){
-            console.log(`password invalid - ${password}`)
             errorBox.classList.remove('hidden')
             errorMsg.innerHTML = "Password must contain at least one upper char, one special char, one lower char, and in total at least 8 chars"
+            isloading = false
             return;
         }
         //var msg = {"type" : "SIGNUP", "email" : email ,"uname" : name, "pswd" : password}
@@ -106,6 +108,9 @@
     }
 
     const tryLogin = ()=> {
+      /*
+      function that tries logging in - checks fields, sends request and handles response
+      */
       //var loginMsg = {"type" : "LOGIN", "email" : email, "pswd" : password}
       //var loginMsg = make_login_message(email, password)
       isloading = true
@@ -116,20 +121,22 @@
           errorMsg.innerHTML = `error in logging in - ${resp.error_msg}`
         }
         else if (resp.status == "interim"){
-          console.log("in interim")
           currentEmail2faEmail = resp.interim_data.email_sent
           currentEmail2faId = resp.interim_data.id
           twofatok = resp.interim_data["2fa-token"]
           regOrLogin = 3
           isauthloginorreg = 1
         }
-        console.log(resp)
       })
     }
 
     async function tryVerify(){
+      /*
+      function that tries to do 2fa - sends request and handles response
+      */
       isloading = true
       let verifyCode = verificationCode
+      verificationCode = ""
       if (isauthloginorreg == 0)
       {
         let resp = await try_verify_registery(currentEmail2faId, verifyCode, twofatok)

@@ -1,17 +1,12 @@
 <script>
     import { get } from 'svelte/store';
     import {id, users} from './store.js'
-    import { group_outros } from 'svelte/internal';
     export let value = null
     export let onClick
     let image;
     let name;
     let other_user = null
-    
-    $: console.log(type)
-    $: console.log(value)
 
-    //$: console.log(value)
     $: gid = value["id"]
     $: latestMsg = value["latest_msg"]
     $: type = value["typeofchat"]
@@ -21,7 +16,10 @@
     $: bgColorClassHover = (value["selected"] == true) ? "hover:bg-blue-400" : "hover:bg-gray-100"
     $: get_personal_user_data(value)
 
-    $: if (type == "UserChat"){
+    $: ((_)=>{if (type == "UserChat"){
+      /*
+      sets name and image to the proper name and image of the chat (either the name and image of the chat itself, or the other user if its a one on one chat)
+      */
         name = $users[value["usertoshow"]]["Name"]
         image = $users[value["usertoshow"]]["PFP"]
       }
@@ -29,15 +27,16 @@
         name = value["name"]
         image = value["picture"]
       }
+    })($users[value["usertoshow"]])
 
     function get_personal_user_data(group){
-      console.log(get(users))
+      /*
+      sets other_user to the data of the other user if it is a one on one chat
+      */
       if (group.type == 2){
         other_user = (group.members[0] == get(id)) ? group.members[1] : group.members[0];
       }
-      console.log(`other user is ${other_user}`)
     }
-    $: console.log(latestMsg)
     
 </script>
 
@@ -57,7 +56,7 @@
       <img src={image} alt="Group Image" class="h-8 w-8 rounded-full border-black border-2" />
     {:else if value.type == 2}
       {#if ($users)[other_user]}
-        <img src={get(users)[other_user].PFP} alt="Group Image" class="h-8 w-8 rounded-full border-black border-2" />
+        <img src={$users[other_user].PFP} alt="Group Image" class="h-8 w-8 rounded-full border-black border-2" />
       {/if}
     {/if}
   </div>

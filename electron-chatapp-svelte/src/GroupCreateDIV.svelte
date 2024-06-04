@@ -2,7 +2,6 @@
     import { each } from "svelte/internal";
     import { token, get_users_on , create_group, get_all_users, id} from "./store";
     import { get } from 'svelte/store';
-    import defaultimage from './defaultimage.js'
 
     export let cancelFunc;
     let selectedUsers = [];
@@ -13,39 +12,26 @@
     let imageB64 = "";
     let imageErrorBox;
     let errorMsg;
-    let previousFilter = "asdasdasdsa";
+    let previousFilter = "a";
 
     $: filterDict(searchFilter, selectedUsers);
-    /*
-    window.api
-        .promiseMsg(JSON.stringify({ type: "FETCHUSERSON", token: $token }))
-        .then((resp) => {
-            var respDecoded = JSON.parse(resp);
-            console.log(respDecoded);
-            if (respDecoded["success"] == "0") {
-                alert(
-                    `error in fetching users online - ${respDecoded["errorMsg"]}`,
-                    cancelFunc()
-                );
-            } else {
-                onlineUsers = respDecoded["users"];
-                console.log(onlineUsers);
-            }
-        });
-        */
     function getExtension(file) {
-        console.log(file);
+        /*
+        function that gets a file object, and returns its extension in lower letters
+        */
         var filename = file.name;
         if (filename) {
             var parts = filename.split(".");
-            return parts[parts.length - 1];
+            return parts[parts.length - 1].toLowerCase();
         }
         return "";
     }
 
     function tryShowImage(event) {
+        /*
+        function that recieves the onchange event of the file element, and tries showing the image
+        */
         var file = event.target.files[0];
-        console.log(file);
         if (["png", "jpeg", "jpg"].includes(getExtension(file))) {
             const reader = new FileReader();
             reader.readAsDataURL(file);
@@ -65,6 +51,9 @@
     }
 
     const createFunc = ( )=> {
+        /*
+        function that executes when create group button is clicked. checks every field is fine and sends it
+        */
         if (groupName.length <= 0) {
             errorMsg.innerHTML = "Group name cannot be empty!"
             errorMsg.parentElement.classList.remove("hidden")
@@ -93,31 +82,34 @@
 
 
     async function filterDict(filt, secondDict) {
+        /*
+        function that recieves the filter text and the users not to show, requests the user list and filters it out.
+        */
         if (filt != previousFilter){
             var allUsers = await get_all_users(filt);
             if (allUsers["status"]=="failure"){
-                alert("Failed to fetch users!")
+                //alert("Failed to fetch users!")
+                window.api.notify("Failed to fetch users")
                 return
             }
             allUsers = allUsers["success_data"]
-            console.log(allUsers)
             filteredUsers = []
             for (const [key, userData] of Object.entries(allUsers)){
                 if (userData["id"] == get(id)){
                     continue
                 }
-                console.log(userData)
                 let tempUserData = [userData["id"], userData["email"], userData["uname"]]
-                console.log(tempUserData)
                 filteredUsers.push(tempUserData)
             }
         }
-        console.log(filteredUsers)
         filteredUsers = filteredUsers
         previousFilter = filt
     }
 
     function idInArray(id){
+        /*
+        function that recieves an id, and checks if it is in the selected users list. returns bool
+        */
         for (var i = 0; i < selectedUsers.length; i++){
             if (selectedUsers[i][0] == id)
                 return true
@@ -126,6 +118,9 @@
     }
 
     function addToSelected(id, email, uname) {
+        /*
+        function that recieves a user id, email and username of a user, and adds him to the selected users list
+        */
         if (idInArray(id))
             return
         selectedUsers.push([id, email, uname]);
